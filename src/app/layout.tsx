@@ -24,7 +24,7 @@ export default function RootLayout({
                   href="/"
                   className="flex items-center gap-2 text-lg font-bold text-primary"
                 >
-                  <span className="text-2xl">&#x1f3af;</span>
+                  <span className="text-xl">&gt;_</span>
                   <span>Interview Coach</span>
                 </Link>
                 <div className="flex items-center gap-1">

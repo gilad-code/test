@@ -41,7 +41,7 @@ export default function Home() {
             href="/guide"
             className="group bg-card border border-border rounded-xl p-6 hover:border-primary/50 hover:shadow-lg transition-all"
           >
-            <div className="text-3xl mb-4">&#x1f91d;</div>
+            <div className="text-2xl mb-4 text-primary font-bold">[~]</div>
             <h3 className="text-lg font-bold mb-2 group-hover:text-primary transition-colors">
               Open & Build Trust
             </h3>
@@ -59,7 +59,7 @@ export default function Home() {
             href="/deep-dive"
             className="group bg-card border border-border rounded-xl p-6 hover:border-primary/50 hover:shadow-lg transition-all"
           >
-            <div className="text-3xl mb-4">&#x1f50d;</div>
+            <div className="text-2xl mb-4 text-primary font-bold">[?]</div>
             <h3 className="text-lg font-bold mb-2 group-hover:text-primary transition-colors">
               Dive Deep on Pain
             </h3>
@@ -77,7 +77,7 @@ export default function Home() {
             href="/analyze"
             className="group bg-card border border-border rounded-xl p-6 hover:border-primary/50 hover:shadow-lg transition-all"
           >
-            <div className="text-3xl mb-4">&#x1f4ca;</div>
+            <div className="text-2xl mb-4 text-primary font-bold">[&gt;]</div>
             <h3 className="text-lg font-bold mb-2 group-hover:text-primary transition-colors">
               Analyze & Improve
             </h3>

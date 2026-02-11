@@ -64,7 +64,7 @@ function extractQuotes(text: string, patterns: RegExp[], maxQuotes = 3): string[
 }
 
 // Parse transcript into turns — supports common formats:
-//   "Interviewer: ...", "Customer: ...", "Speaker 1: ...", or timestamped
+//   "Interviewer: ...", "Customer: ...", "Speaker 1: ...", "Name: ...", or timestamped
 function parseTurns(transcript: string): { role: "interviewer" | "interviewee"; text: string }[] {
   const lines = transcript.split("\n").filter((l) => l.trim().length > 0);
   const turns: { role: "interviewer" | "interviewee"; text: string }[] = [];
@@ -73,6 +73,35 @@ function parseTurns(transcript: string): { role: "interviewer" | "interviewee"; 
     /^(interviewer|host|me|speaker\s*1|q|moderator|researcher)\s*[:\-]/i;
   const intervieweePatterns =
     /^(interviewee|customer|guest|user|client|respondent|participant|speaker\s*2|a)\s*[:\-]/i;
+
+  // Detect name-based speaker labels: "Name:", "[timestamp] Name:", "(00:01:23) Name:"
+  // Match lines that start with an optional timestamp and then a name followed by a colon
+  const nameLabel = /^(?:\[[\d:.\-\s]+\]\s*|\([\d:.\-\s]+\)\s*|[\d:.\-]+\s+)?([A-Z][A-Za-z'\-]+(?:\s+[A-Z][A-Za-z'\-]+)*)\s*:/;
+
+  // First pass: detect unique speaker names to assign roles
+  const speakerCounts: Record<string, number> = {};
+  const speakerOrder: string[] = [];
+  for (const line of lines) {
+    const nameMatch = line.match(nameLabel);
+    if (nameMatch) {
+      const name = nameMatch[1].trim().toLowerCase();
+      // Skip names that already match the generic patterns
+      if (interviewerPatterns.test(line) || intervieweePatterns.test(line)) continue;
+      if (!speakerCounts[name]) {
+        speakerCounts[name] = 0;
+        speakerOrder.push(name);
+      }
+      speakerCounts[name]++;
+    }
+  }
+
+  // Build a mapping of speaker name → role
+  // First speaker is assumed to be the interviewer, second is the interviewee
+  // If more than 2 speakers, the first is interviewer and the rest are interviewees
+  const speakerRoles: Record<string, "interviewer" | "interviewee"> = {};
+  for (let i = 0; i < speakerOrder.length; i++) {
+    speakerRoles[speakerOrder[i]] = i === 0 ? "interviewer" : "interviewee";
+  }
 
   let currentRole: "interviewer" | "interviewee" | null = null;
   let currentText = "";
@@ -90,16 +119,34 @@ function parseTurns(transcript: string): { role: "interviewer" | "interviewee"; 
       }
       currentRole = "interviewee";
       currentText = line.replace(intervieweePatterns, "").trim();
-    } else if (currentRole) {
-      currentText += " " + line.trim();
     } else {
-      // No speaker label detected — alternate starting with interviewer
-      if (turns.length === 0 || turns[turns.length - 1].role === "interviewee") {
-        currentRole = "interviewer";
-      } else {
-        currentRole = "interviewee";
+      // Try name-based detection
+      const nameMatch = line.match(nameLabel);
+      if (nameMatch) {
+        const name = nameMatch[1].trim().toLowerCase();
+        const role = speakerRoles[name];
+        if (role) {
+          if (currentRole && currentText) {
+            turns.push({ role: currentRole, text: currentText.trim() });
+          }
+          currentRole = role;
+          // Remove the full prefix (timestamp + name + colon)
+          currentText = line.replace(/^(?:\[[\d:.\-\s]+\]\s*|\([\d:.\-\s]+\)\s*|[\d:.\-]+\s+)?[A-Z][A-Za-z'\-]+(?:\s+[A-Z][A-Za-z'\-]+)*\s*:\s*/, "").trim();
+          continue;
+        }
       }
-      currentText = line.trim();
+
+      if (currentRole) {
+        currentText += " " + line.trim();
+      } else {
+        // No speaker label detected — alternate starting with interviewer
+        if (turns.length === 0 || turns[turns.length - 1].role === "interviewee") {
+          currentRole = "interviewer";
+        } else {
+          currentRole = "interviewee";
+        }
+        currentText = line.trim();
+      }
     }
   }
 

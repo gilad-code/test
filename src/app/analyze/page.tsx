@@ -219,9 +219,10 @@ export default function AnalyzePage() {
           </div>
         </div>
         <p className="text-sm text-muted mb-3">
-          Format: Label each speaker (e.g., &quot;Interviewer:&quot; and
-          &quot;Customer:&quot;) on separate lines. Supports common formats like
-          &quot;Speaker 1:&quot;, &quot;Host:&quot;, &quot;Q:&quot;/&quot;A:&quot;, etc.
+          Format: Label each speaker on separate lines. Supports generic labels
+          (&quot;Interviewer:&quot;, &quot;Customer:&quot;, &quot;Speaker 1:&quot;)
+          and real names (&quot;Tal:&quot;, &quot;Sarah:&quot;). The first speaker
+          detected is assumed to be the interviewer.
         </p>
         <textarea
           value={transcript}
