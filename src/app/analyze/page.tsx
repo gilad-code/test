@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from "react";
 import { analyzeTranscript, type AnalysisResult } from "@/lib/analysis";
+import { saveCall } from "@/lib/storage";
 
 function ScoreRing({
   percentage,
@@ -150,21 +151,27 @@ Interviewer: I really appreciate your honesty and time today. This has been incr
 
 export default function AnalyzePage() {
   const [transcript, setTranscript] = useState("");
+  const [callTitle, setCallTitle] = useState("");
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [saved, setSaved] = useState(false);
   const [activeTab, setActiveTab] = useState<"score" | "strengths" | "improve" | "pains">("score");
 
   const handleAnalyze = useCallback(() => {
     if (!transcript.trim()) return;
     setIsAnalyzing(true);
-    // Simulate a brief delay for UX
+    setSaved(false);
     setTimeout(() => {
       const analysis = analyzeTranscript(transcript);
       setResult(analysis);
       setIsAnalyzing(false);
       setActiveTab("score");
+      // Auto-save the call
+      const title = callTitle.trim() || `Call on ${new Date().toLocaleDateString()}`;
+      saveCall(title, transcript, analysis);
+      setSaved(true);
     }, 800);
-  }, [transcript]);
+  }, [transcript, callTitle]);
 
   const handleFileUpload = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -218,6 +225,13 @@ export default function AnalyzePage() {
             </label>
           </div>
         </div>
+        <input
+          type="text"
+          value={callTitle}
+          onChange={(e) => setCallTitle(e.target.value)}
+          placeholder="Call title (e.g., Candice from Polymedco)"
+          className="w-full bg-background border border-border rounded-lg px-4 py-2.5 text-sm mb-3 focus:outline-none focus:ring-2 focus:ring-primary/50"
+        />
         <p className="text-sm text-muted mb-3">
           Format: Label each speaker on separate lines. Supports generic labels
           (&quot;Interviewer:&quot;, &quot;Customer:&quot;, &quot;Speaker 1:&quot;)
@@ -252,9 +266,16 @@ export default function AnalyzePage() {
             <div className="flex flex-col sm:flex-row items-center gap-6">
               <ScoreRing percentage={result.percentage} grade={result.grade} />
               <div className="flex-1 text-center sm:text-left">
-                <h2 className="text-xl font-bold mb-2">
-                  Overall Score: {result.overallScore}/{result.maxPossibleScore}
-                </h2>
+                <div className="flex items-center gap-3 mb-2">
+                  <h2 className="text-xl font-bold">
+                    Overall Score: {result.overallScore}/{result.maxPossibleScore}
+                  </h2>
+                  {saved && (
+                    <span className="text-xs bg-success/10 text-success px-2 py-1 rounded-full font-medium">
+                      Saved
+                    </span>
+                  )}
+                </div>
                 <p className="text-muted">{result.summary}</p>
                 <div className="flex items-center gap-4 mt-3">
                   <div className="text-sm">

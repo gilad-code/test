@@ -1,17 +1,17 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f5f0e8;
-  --foreground: #1a1a1a;
-  --primary: #c96442;
-  --primary-light: #d4795a;
-  --primary-dark: #a8502f;
-  --accent: #c96442;
-  --success: #16a34a;
-  --danger: #dc2626;
-  --muted: #78716c;
+  --background: #f6f9fc;
+  --foreground: #0a2540;
+  --primary: #635bff;
+  --primary-light: #7a73ff;
+  --primary-dark: #4b44d9;
+  --accent: #00d4aa;
+  --success: #0cbc87;
+  --danger: #ed5f74;
+  --muted: #697386;
   --card: #ffffff;
-  --border: #e2ddd5;
+  --border: #e3e8ee;
 }
 
 @theme inline {
@@ -26,14 +26,15 @@
   --color-muted: var(--muted);
   --color-card: var(--card);
   --color-border: var(--border);
-  --font-sans: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
-  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
 
 /* Score ring animation */
